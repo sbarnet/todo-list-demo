@@ -8,11 +8,21 @@ class UsersController < ApplicationController
     @user = User.new
   end
   
+  
   def show
     @user = User.find(params[:id])
+    
   end
   
-  
+  def create
+      @user = User.new(user_params)    # Not the final implementation!
+        if @user.save
+          flash[:success] = "Welcome to The greatest To Do List"
+          redirect_to @user
+        else
+          render 'new'
+        end
+    end 
 
 private
   def user_params
