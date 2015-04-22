@@ -1,5 +1,7 @@
 class TasksController < ApplicationController
+  before_action :user_logged_in, except: [:index, :show]
   before_action :set_task, only: [:show, :edit, :update, :destroy]
+  before_action :owns_task, only: [:update, :destroy]
 
   # GET /tasks
   # GET /tasks.json
@@ -14,7 +16,7 @@ class TasksController < ApplicationController
 
   # GET /tasks/new
   def new
-    @task = Task.new
+    @task = current_user.Task.new
   end
 
   # GET /tasks/1/edit
@@ -24,7 +26,7 @@ class TasksController < ApplicationController
   # POST /tasks
   # POST /tasks.json
   def create
-    @task = Task.new(task_params)
+    @task = current_user.Task.new(task_params)
 
     respond_to do |format|
       if @task.save
@@ -62,11 +64,24 @@ class TasksController < ApplicationController
   end
 
   private
+  
+  def owns_task
+     if @task.user_id != current_user.id
+        flash[:danger] = 'You are not authorized to do this'
+        redirect_to root_url
+      end
+    end
+  
     # Use callbacks to share common setup or constraints between actions.
     def set_task
-      @task = Task.find(params[:id])
+      if params[:user_id]
+        @task = current_user.task.find(params[:id])
+      else
+        @task = Task.find(params[:id])
+      end
     end
 
+   
     # Never trust parameters from the scary internet, only allow the white list through.
     def task_params
       params.require(:task).permit(:name, :description, :due_date, :category_id)

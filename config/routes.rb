@@ -1,13 +1,20 @@
 Rails.application.routes.draw do
   
+  get 'sessions/new'
+
   root 'welcome#index'
   
   get '/about_us' => 'welcome#about_us'
   get 'signup'  => 'users#new'
   
+  get    'login'   => 'sessions#new'
+  post   'login'   => 'sessions#create'
+  delete 'logout'  => 'sessions#destroy'
+  
   resources :categories
   resources :tasks
   resources :users
+  resources :account_activations, only: [:edit]
   
 
   # The priority is based upon order of creation: first created -> highest priority.
